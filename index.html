@@ -1,0 +1,1030 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>Home Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@300;400;500&family=Instrument+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg:       #0a0c0f;
+    --surface:  #111318;
+    --border:   #1e2128;
+    --muted:    #3a3f4a;
+    --text:     #e8eaf0;
+    --dim:      #7a8090;
+    --sun:      #f5c842;
+    --green:    #3dd68c;
+    --blue:     #4da6ff;
+    --amber:    #f59e0b;
+    --red:      #f87171;
+    --violet:   #a78bfa;
+    --radius:   16px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Instrument Sans', sans-serif;
+    height: 100dvh;
+    width: 100dvw;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* ── Background texture ── */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background:
+      radial-gradient(ellipse 80% 60% at 10% 0%, #f5c84208 0%, transparent 60%),
+      radial-gradient(ellipse 60% 80% at 90% 100%, #4da6ff06 0%, transparent 60%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* ── Layout ── */
+  #app {
+    position: relative;
+    z-index: 1;
+    display: grid;
+    grid-template-rows: auto 1fr;
+    height: 100dvh;
+    padding: 18px 20px 14px;
+    gap: 14px;
+  }
+
+  /* ── Header bar ── */
+  #header {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    flex-shrink: 0;
+  }
+
+  #clock {
+    font-family: 'DM Serif Display', serif;
+    font-size: clamp(2.8rem, 7vw, 4.8rem);
+    letter-spacing: -0.02em;
+    color: var(--text);
+    line-height: 1;
+  }
+
+  #clock em {
+    font-style: italic;
+    color: var(--sun);
+  }
+
+  #date-line {
+    font-family: 'DM Mono', monospace;
+    font-size: clamp(0.65rem, 1.4vw, 0.85rem);
+    color: var(--dim);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    text-align: right;
+    line-height: 1.6;
+  }
+
+  #weather-chip {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.78rem;
+    color: var(--dim);
+    margin-top: 4px;
+    justify-content: flex-end;
+  }
+
+  /* ── Main grid ── */
+  #grid {
+    display: grid;
+    grid-template-columns: 1.1fr 1fr 0.95fr;
+    grid-template-rows: 1fr 1fr;
+    gap: 12px;
+    min-height: 0;
+  }
+
+  /* Card base */
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 16px 18px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    overflow: hidden;
+    position: relative;
+    animation: fadeUp 0.5s ease both;
+  }
+
+  .card::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: var(--radius);
+    box-shadow: inset 0 1px 0 #ffffff08;
+    pointer-events: none;
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(10px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .card:nth-child(1) { animation-delay: 0.05s; }
+  .card:nth-child(2) { animation-delay: 0.10s; }
+  .card:nth-child(3) { animation-delay: 0.15s; }
+  .card:nth-child(4) { animation-delay: 0.20s; }
+  .card:nth-child(5) { animation-delay: 0.25s; }
+
+  /* Solar card spans 2 rows */
+  #solar-card { grid-row: span 2; }
+
+  /* ── Card header ── */
+  .card-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.6rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--muted);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-shrink: 0;
+  }
+
+  .card-label .dot {
+    width: 5px; height: 5px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  /* ── Solar card internals ── */
+  #solar-main {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    flex: 1;
+    justify-content: space-between;
+  }
+
+  .solar-big-num {
+    font-family: 'DM Serif Display', serif;
+    font-size: clamp(2.4rem, 6vw, 4rem);
+    line-height: 1;
+    color: var(--sun);
+    letter-spacing: -0.02em;
+  }
+
+  .solar-big-unit {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--dim);
+    margin-top: 2px;
+    letter-spacing: 0.08em;
+  }
+
+  .solar-row {
+    display: flex;
+    gap: 10px;
+  }
+
+  .solar-stat {
+    flex: 1;
+    background: #0a0c0f;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 10px 12px;
+  }
+
+  .solar-stat-val {
+    font-family: 'DM Mono', monospace;
+    font-size: clamp(0.95rem, 2.2vw, 1.3rem);
+    font-weight: 500;
+    color: var(--text);
+    line-height: 1;
+  }
+
+  .solar-stat-lbl {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.58rem;
+    color: var(--dim);
+    margin-top: 3px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+
+  /* Battery bar */
+  .batt-wrap {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+  }
+
+  .batt-track {
+    height: 7px;
+    background: var(--border);
+    border-radius: 4px;
+    overflow: hidden;
+  }
+
+  .batt-fill {
+    height: 100%;
+    border-radius: 4px;
+    transition: width 1s ease;
+  }
+
+  .batt-labels {
+    display: flex;
+    justify-content: space-between;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.6rem;
+    color: var(--dim);
+  }
+
+  .batt-pct {
+    font-family: 'DM Mono', monospace;
+    font-size: clamp(0.9rem, 2vw, 1.2rem);
+    font-weight: 500;
+  }
+
+  /* Flow indicator */
+  .flow-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.7rem;
+  }
+
+  .flow-dot {
+    width: 7px; height: 7px;
+    border-radius: 50%;
+    animation: pulse 2s ease-in-out infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.35; }
+  }
+
+  /* ── Events card ── */
+  .event-list {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    flex: 1;
+    overflow: hidden;
+  }
+
+  .event-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 9px;
+    padding: 8px 10px;
+    background: #0a0c0f;
+    border-radius: 10px;
+    border-left: 2.5px solid transparent;
+    flex-shrink: 0;
+  }
+
+  .event-item.urgent { border-left-color: var(--amber); }
+
+  .event-time {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.6rem;
+    color: var(--dim);
+    letter-spacing: 0.05em;
+    white-space: nowrap;
+    padding-top: 1px;
+    min-width: 52px;
+  }
+
+  .event-title {
+    font-size: 0.78rem;
+    line-height: 1.3;
+    color: var(--text);
+    font-weight: 500;
+  }
+
+  .event-cal {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.55rem;
+    margin-top: 2px;
+    letter-spacing: 0.08em;
+  }
+
+  /* ── Reminders card ── */
+  .reminder-list {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    flex: 1;
+    overflow: hidden;
+  }
+
+  .reminder-item {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    padding: 8px 10px;
+    background: #0a0c0f;
+    border-radius: 10px;
+    flex-shrink: 0;
+  }
+
+  .priority-pip {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  .reminder-text {
+    font-size: 0.76rem;
+    color: var(--text);
+    line-height: 1.3;
+    flex: 1;
+  }
+
+  .reminder-due {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.55rem;
+    color: var(--dim);
+    white-space: nowrap;
+  }
+
+  /* ── Config overlay ── */
+  #config-overlay {
+    position: fixed;
+    inset: 0;
+    background: #000000cc;
+    backdrop-filter: blur(12px);
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+  }
+
+  #config-overlay.hidden { display: none; }
+
+  .config-box {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 28px 32px;
+    width: min(560px, 90vw);
+    max-height: 80dvh;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+  }
+
+  .config-title {
+    font-family: 'DM Serif Display', serif;
+    font-size: 1.5rem;
+    color: var(--text);
+  }
+
+  .config-section {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .config-section-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.62rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--dim);
+  }
+
+  .config-input {
+    background: #0a0c0f;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 10px 14px;
+    color: var(--text);
+    font-family: 'DM Mono', monospace;
+    font-size: 0.8rem;
+    width: 100%;
+    outline: none;
+  }
+
+  .config-input:focus { border-color: var(--muted); }
+
+  .config-hint {
+    font-size: 0.68rem;
+    color: var(--dim);
+    line-height: 1.5;
+  }
+
+  .config-hint a { color: var(--blue); text-decoration: none; }
+
+  .btn-row {
+    display: flex;
+    gap: 10px;
+    justify-content: flex-end;
+  }
+
+  .btn {
+    padding: 10px 20px;
+    border-radius: 10px;
+    border: none;
+    font-family: 'Instrument Sans', sans-serif;
+    font-size: 0.82rem;
+    font-weight: 600;
+    cursor: pointer;
+    letter-spacing: 0.02em;
+  }
+
+  .btn-primary { background: var(--sun); color: #0a0c0f; }
+  .btn-ghost { background: var(--border); color: var(--dim); }
+
+  /* ── Settings gear ── */
+  #settings-btn {
+    position: fixed;
+    bottom: 16px;
+    right: 16px;
+    z-index: 50;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 50%;
+    width: 40px; height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1rem;
+    cursor: pointer;
+    opacity: 0.4;
+    transition: opacity 0.2s;
+  }
+
+  #settings-btn:active { opacity: 1; }
+
+  /* ── Status bar ── */
+  #status-bar {
+    position: fixed;
+    bottom: 6px;
+    left: 20px;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.55rem;
+    color: var(--muted);
+    letter-spacing: 0.1em;
+    z-index: 10;
+  }
+
+  /* ── Empty state ── */
+  .empty-msg {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.68rem;
+    color: var(--muted);
+    font-style: italic;
+    padding: 8px 0;
+  }
+
+  /* ── Refresh indicator ── */
+  .spin {
+    display: inline-block;
+    animation: spin 1s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* scroll styling */
+  ::-webkit-scrollbar { width: 4px; }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+</style>
+</head>
+<body>
+
+<div id="app">
+  <!-- Header -->
+  <div id="header">
+    <div id="clock"><em id="clock-h">00</em>:<span id="clock-m">00</span></div>
+    <div>
+      <div id="date-line"></div>
+      <div id="weather-chip">
+        <span id="weather-icon">🌦</span>
+        <span id="weather-text">Newry, Northern Ireland</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main grid -->
+  <div id="grid">
+
+    <!-- SOLAR — spans 2 rows -->
+    <div class="card" id="solar-card">
+      <div class="card-label">
+        <div class="dot" style="background:var(--sun)"></div>
+        Solar System
+        <span id="solar-status-chip" style="margin-left:auto;font-size:0.58rem;color:var(--dim)">— not configured</span>
+      </div>
+
+      <div id="solar-main">
+        <div>
+          <div class="solar-big-num" id="solar-power">—</div>
+          <div class="solar-big-unit">kW generating now</div>
+        </div>
+
+        <div class="solar-row">
+          <div class="solar-stat">
+            <div class="solar-stat-val" id="solar-today">—</div>
+            <div class="solar-stat-lbl">kWh Today</div>
+          </div>
+          <div class="solar-stat">
+            <div class="solar-stat-val" id="solar-month">—</div>
+            <div class="solar-stat-lbl">kWh Month</div>
+          </div>
+        </div>
+
+        <div>
+          <div class="batt-wrap">
+            <div style="display:flex;justify-content:space-between;align-items:baseline;">
+              <div class="solar-stat-lbl">Battery</div>
+              <div class="batt-pct" id="batt-pct" style="color:var(--green)">—</div>
+            </div>
+            <div class="batt-track">
+              <div class="batt-fill" id="batt-fill" style="width:0%;background:var(--green)"></div>
+            </div>
+            <div class="batt-labels">
+              <span>0%</span><span>50%</span><span>100%</span>
+            </div>
+          </div>
+        </div>
+
+        <div style="display:flex;flex-direction:column;gap:6px;">
+          <div class="flow-row" id="grid-flow">
+            <div class="flow-dot" style="background:var(--dim)"></div>
+            <span style="color:var(--dim)">Grid: —</span>
+          </div>
+          <div class="flow-row" id="batt-flow">
+            <div class="flow-dot" style="background:var(--dim)"></div>
+            <span style="color:var(--dim)">Battery: —</span>
+          </div>
+        </div>
+
+        <div style="font-family:'DM Mono',monospace;font-size:0.6rem;color:var(--muted);line-height:1.6;">
+          SolisCloud API requires a backend proxy due to browser CORS restrictions.<br>
+          Configure your API credentials below — data shown when proxy is available.<br>
+          <span style="color:var(--amber)">Tap ⚙ to enter your Solis Key ID & Secret.</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- TODAY's EVENTS -->
+    <div class="card">
+      <div class="card-label">
+        <div class="dot" style="background:var(--blue)"></div>
+        Today
+      </div>
+      <div class="event-list" id="today-list">
+        <div class="empty-msg">Loading events…</div>
+      </div>
+    </div>
+
+    <!-- UPCOMING EVENTS -->
+    <div class="card">
+      <div class="card-label">
+        <div class="dot" style="background:var(--violet)"></div>
+        Upcoming
+      </div>
+      <div class="event-list" id="upcoming-list">
+        <div class="empty-msg">Loading events…</div>
+      </div>
+    </div>
+
+    <!-- REMINDERS / TASKS -->
+    <div class="card">
+      <div class="card-label">
+        <div class="dot" style="background:var(--red)"></div>
+        Needs Attention
+      </div>
+      <div class="reminder-list" id="reminder-list">
+        <div class="empty-msg">No urgent tasks</div>
+      </div>
+    </div>
+
+    <!-- QUICK STATS / FAMILY -->
+    <div class="card" id="family-card">
+      <div class="card-label">
+        <div class="dot" style="background:var(--green)"></div>
+        At a Glance
+      </div>
+      <div id="glance-content" style="display:flex;flex-direction:column;gap:8px;flex:1;justify-content:center;">
+        <div class="empty-msg">Loading…</div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- Settings gear -->
+<button id="settings-btn" onclick="openConfig()">⚙</button>
+<div id="status-bar">Last updated: <span id="last-updated">—</span></div>
+
+<!-- Config overlay -->
+<div id="config-overlay" class="hidden">
+  <div class="config-box">
+    <div class="config-title">Dashboard Setup</div>
+
+    <div class="config-section">
+      <div class="config-section-label">☀ SolisCloud — API Credentials</div>
+      <input class="config-input" id="cfg-solis-key" placeholder="Key ID (from SolisCloud > Account > API)" type="text">
+      <input class="config-input" id="cfg-solis-secret" placeholder="Key Secret" type="password">
+      <input class="config-input" id="cfg-solis-proxy" placeholder="Proxy URL (e.g. https://your-proxy.vercel.app)" type="text">
+      <div class="config-hint">
+        SolisCloud blocks direct browser calls. Options:<br>
+        1. <strong>Free:</strong> Deploy the <a href="https://github.com/hultenvp/soliscloud_api" target="_blank">open-source proxy</a> to Vercel/Railway (10 min setup).<br>
+        2. <strong>Easiest:</strong> Leave blank — the solar panel shows demo data.
+      </div>
+    </div>
+
+    <div class="config-section">
+      <div class="config-section-label">📅 Google Calendar</div>
+      <input class="config-input" id="cfg-gcal-key" placeholder="Google API Key" type="text">
+      <input class="config-input" id="cfg-gcal-ids" placeholder="Calendar IDs (comma-separated, or 'primary')" type="text">
+      <div class="config-hint">
+        Get a key at <a href="https://console.cloud.google.com" target="_blank">console.cloud.google.com</a> → Credentials → API Key.<br>
+        Enable the "Google Calendar API". For family calendars, add each Calendar ID separated by commas.
+      </div>
+    </div>
+
+    <div class="config-section">
+      <div class="config-section-label">🌤 Weather (optional)</div>
+      <input class="config-input" id="cfg-weather-key" placeholder="OpenWeatherMap API Key (free tier)" type="text">
+      <div class="config-hint">
+        Free at <a href="https://openweathermap.org/api" target="_blank">openweathermap.org</a> — auto-shows Newry weather.
+      </div>
+    </div>
+
+    <div class="btn-row">
+      <button class="btn btn-ghost" onclick="closeConfig()">Cancel</button>
+      <button class="btn btn-primary" onclick="saveConfig()">Save & Refresh</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── Config persistence (localStorage) ─────────────────────────────────────────
+const CFG_KEY = 'home_dashboard_cfg';
+
+function loadConfig() {
+  try {
+    const stored = JSON.parse(localStorage.getItem(CFG_KEY)) || {};
+    // Pre-fill defaults if not already set
+    if (!stored.gcalApiKey) stored.gcalApiKey = 'AIzaSyD2bv51Rr89KPYVG4-4qSyZ3HCVIWTnbFQ';
+    if (!stored.gcalIds)    stored.gcalIds    = 'primary,family08911118207722332863@group.calendar.google.com,ginjiu1qiv63pngutneri1f1rk2b6s45@import.calendar.google.com,skg5s18m6194ha5h8ol17ulp69qd47iv@import.calendar.google.com';
+    return stored;
+  } catch { return { gcalApiKey: 'AIzaSyD2bv51Rr89KPYVG4-4qSyZ3HCVIWTnbFQ', gcalIds: 'primary,family08911118207722332863@group.calendar.google.com,ginjiu1qiv63pngutneri1f1rk2b6s45@import.calendar.google.com,skg5s18m6194ha5h8ol17ulp69qd47iv@import.calendar.google.com' }; }
+}
+
+function saveConfig() {
+  const cfg = {
+    solisKeyId:    document.getElementById('cfg-solis-key').value.trim(),
+    solisSecret:   document.getElementById('cfg-solis-secret').value.trim(),
+    solisProxy:    document.getElementById('cfg-solis-proxy').value.trim(),
+    gcalApiKey:    document.getElementById('cfg-gcal-key').value.trim(),
+    gcalIds:       document.getElementById('cfg-gcal-ids').value.trim(),
+    weatherApiKey: document.getElementById('cfg-weather-key').value.trim(),
+  };
+  localStorage.setItem(CFG_KEY, JSON.stringify(cfg));
+  closeConfig();
+  refreshAll();
+}
+
+function openConfig() {
+  const cfg = loadConfig();
+  document.getElementById('cfg-solis-key').value    = cfg.solisKeyId || '';
+  document.getElementById('cfg-solis-secret').value = cfg.solisSecret || '';
+  document.getElementById('cfg-solis-proxy').value  = cfg.solisProxy || '';
+  document.getElementById('cfg-gcal-key').value     = cfg.gcalApiKey || '';
+  document.getElementById('cfg-gcal-ids').value     = cfg.gcalIds || '';
+  document.getElementById('cfg-weather-key').value  = cfg.weatherApiKey || '';
+  document.getElementById('config-overlay').classList.remove('hidden');
+}
+
+function closeConfig() {
+  document.getElementById('config-overlay').classList.add('hidden');
+}
+
+// ── Clock ──────────────────────────────────────────────────────────────────────
+function tickClock() {
+  const now = new Date();
+  const tz = 'Europe/London';
+  const h = now.toLocaleString('en-GB', { hour: '2-digit', hour12: false, timeZone: tz });
+  const m = now.toLocaleString('en-GB', { minute: '2-digit', timeZone: tz }).padStart(2,'0');
+  document.getElementById('clock-h').textContent = h;
+  document.getElementById('clock-m').textContent = m;
+  document.getElementById('date-line').textContent =
+    now.toLocaleDateString('en-GB', { weekday:'long', day:'numeric', month:'long', year:'numeric', timeZone: tz });
+}
+
+setInterval(tickClock, 1000);
+tickClock();
+
+// ── Weather ────────────────────────────────────────────────────────────────────
+async function fetchWeather() {
+  const cfg = loadConfig();
+  if (!cfg.weatherApiKey) return;
+  try {
+    const res = await fetch(
+      `https://api.openweathermap.org/data/2.5/weather?q=Newry,GB&units=metric&appid=${cfg.weatherApiKey}`
+    );
+    const d = await res.json();
+    const icons = { Clear:'☀', Clouds:'☁', Rain:'🌧', Drizzle:'🌦', Snow:'❄', Thunderstorm:'⛈', Mist:'🌫', Fog:'🌫' };
+    const icon = icons[d.weather[0].main] || '🌡';
+    document.getElementById('weather-icon').textContent = icon;
+    document.getElementById('weather-text').textContent =
+      `${Math.round(d.main.temp)}°C · ${d.weather[0].description} · Newry`;
+  } catch (e) { /* silent fail */ }
+}
+
+// ── Solar ──────────────────────────────────────────────────────────────────────
+const DEMO_SOLAR = {
+  currentPower: 2.84,
+  todayEnergy: 12.4,
+  monthEnergy: 187.3,
+  batterySOC: 78,
+  batteryCharging: true,
+  gridExporting: true,
+  gridPower: 0.42,
+};
+
+function renderSolar(d, isDemo) {
+  document.getElementById('solar-power').textContent  = d.currentPower.toFixed(2);
+  document.getElementById('solar-today').textContent  = d.todayEnergy.toFixed(1);
+  document.getElementById('solar-month').textContent  = d.monthEnergy.toFixed(1);
+
+  const battColor = d.batterySOC > 50 ? 'var(--green)' : d.batterySOC > 20 ? 'var(--amber)' : 'var(--red)';
+  document.getElementById('batt-pct').textContent      = `${d.batterySOC}%`;
+  document.getElementById('batt-pct').style.color      = battColor;
+  document.getElementById('batt-fill').style.width     = `${d.batterySOC}%`;
+  document.getElementById('batt-fill').style.background = battColor;
+
+  const gridEl = document.getElementById('grid-flow');
+  gridEl.querySelector('.flow-dot').style.background = d.gridExporting ? 'var(--green)' : 'var(--amber)';
+  gridEl.querySelector('span').textContent = d.gridExporting
+    ? `Grid: Exporting ${d.gridPower.toFixed(2)} kW`
+    : `Grid: Importing ${d.gridPower.toFixed(2)} kW`;
+  gridEl.querySelector('span').style.color = d.gridExporting ? 'var(--green)' : 'var(--amber)';
+
+  const battEl = document.getElementById('batt-flow');
+  battEl.querySelector('.flow-dot').style.background = d.batteryCharging ? 'var(--green)' : 'var(--violet)';
+  battEl.querySelector('span').textContent = d.batteryCharging ? 'Battery: Charging' : 'Battery: Discharging';
+  battEl.querySelector('span').style.color = d.batteryCharging ? 'var(--green)' : 'var(--violet)';
+
+  document.getElementById('solar-status-chip').textContent = isDemo ? '● demo data' : '● live';
+  document.getElementById('solar-status-chip').style.color = isDemo ? 'var(--amber)' : 'var(--green)';
+}
+
+async function fetchSolar() {
+  const cfg = loadConfig();
+  if (!cfg.solisProxy || !cfg.solisKeyId || !cfg.solisSecret) {
+    renderSolar(DEMO_SOLAR, true);
+    return;
+  }
+  try {
+    const res = await fetch(`${cfg.solisProxy}/api/solar`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ keyId: cfg.solisKeyId, keySecret: cfg.solisSecret })
+    });
+    const d = await res.json();
+    renderSolar(d, false);
+  } catch {
+    renderSolar(DEMO_SOLAR, true);
+  }
+}
+
+// ── Calendar ───────────────────────────────────────────────────────────────────
+const CAL_COLORS = {
+  primary:      'var(--blue)',
+  family:       'var(--violet)',
+  work:         'var(--blue)',
+  personal:     'var(--amber)',
+  imported:     'var(--green)',
+  "st. colman's": 'var(--green)',
+  work:           'var(--blue)',
+};
+
+const DEMO_EVENTS = [
+  { summary: 'Caiden – School run', start: { dateTime: new Date().setHours(8,30) }, calName: 'Family' },
+  { summary: 'Kitchen OS standup',  start: { dateTime: new Date().setHours(10,0) }, calName: 'Work' },
+  { summary: 'Kali – Swimming',     start: { dateTime: new Date(Date.now()+86400000*1).setHours(17,0) }, calName: 'Family' },
+  { summary: 'SIAS – Module 4',     start: { dateTime: new Date(Date.now()+86400000*2).setHours(19,0) }, calName: 'Personal' },
+  { summary: 'Caiden – GCSE Maths', start: { dateTime: new Date(Date.now()+86400000*5).setHours(9,0) }, calName: 'Family' },
+];
+
+function fmtEvtTime(raw) {
+  if (!raw) return '';
+  const d = new Date(raw);
+  const today = new Date(); today.setHours(0,0,0,0);
+  const evDay = new Date(d); evDay.setHours(0,0,0,0);
+  const diff = Math.round((evDay-today)/86400000);
+  const timeStr = d.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'});
+  if (diff === 0) return timeStr;
+  if (diff === 1) return `Tomorrow ${timeStr}`;
+  return `${d.toLocaleDateString('en-GB',{weekday:'short',day:'numeric',month:'short'})} ${timeStr}`;
+}
+
+function isToday(raw) {
+  const d = new Date(raw);
+  const t = new Date();
+  return d.toDateString() === t.toDateString();
+}
+
+function buildEventEl(ev) {
+  const dateTime = ev.start?.dateTime || ev.start?.date;
+  const calName  = ev.calName || ev.organizer?.displayName || 'primary';
+  const color    = CAL_COLORS[calName?.toLowerCase()] || CAL_COLORS.primary;
+  const now      = new Date();
+  const evTime   = new Date(dateTime);
+  const urgent   = isToday(dateTime) && evTime > now;
+
+  const el = document.createElement('div');
+  el.className = 'event-item' + (urgent ? ' urgent' : '');
+  el.innerHTML = `
+    <div class="event-time">${fmtEvtTime(dateTime)}</div>
+    <div>
+      <div class="event-title">${ev.summary || ev.title || 'Untitled'}</div>
+      <div class="event-cal" style="color:${color}">${calName}</div>
+    </div>
+  `;
+  return el;
+}
+
+async function fetchCalendar() {
+  const cfg = loadConfig();
+  let events = [];
+
+  if (cfg.gcalApiKey && cfg.gcalIds) {
+    const calIds = cfg.gcalIds.split(',').map(s => s.trim());
+    const now    = new Date().toISOString();
+    const end    = new Date(Date.now() + 7*86400000).toISOString();
+
+    const calLabels = {
+      'primary': 'Personal',
+      'sarahcmeaney@gmail.com': 'Personal',
+      'family08911118207722332863@group.calendar.google.com': 'Family',
+      'ginjiu1qiv63pngutneri1f1rk2b6s45@import.calendar.google.com': "St. Colman's",
+      'skg5s18m6194ha5h8ol17ulp69qd47iv@import.calendar.google.com': 'Work',
+    };
+
+    for (const calId of calIds) {
+      try {
+        const url = `https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(calId)}/events?` +
+          `timeMin=${now}&timeMax=${end}&singleEvents=true&orderBy=startTime&maxResults=20&key=${cfg.gcalApiKey}`;
+        const res  = await fetch(url);
+        const data = await res.json();
+        if (data.error) {
+          console.error('Google Calendar API error:', JSON.stringify(data.error));
+          // Show error in today panel
+          const todayEls = document.getElementById('today-list');
+          todayEls.innerHTML = `<div class="empty-msg" style="color:var(--amber)">Calendar error: ${data.error.message}</div>`;
+        } else if (data.items) {
+          data.items.forEach(e => {
+            e.calName = calLabels[calId] || data.summary || 'Other';
+          });
+          events = events.concat(data.items);
+        }
+      } catch(err) {
+        console.error('Calendar fetch error for', calId, err);
+      }
+    }
+
+    events.sort((a,b) => {
+      const da = new Date(a.start?.dateTime || a.start?.date);
+      const db = new Date(b.start?.dateTime || b.start?.date);
+      return da - db;
+    });
+  } else {
+    events = DEMO_EVENTS;
+  }
+
+  const todayEls    = document.getElementById('today-list');
+  const upcomingEls = document.getElementById('upcoming-list');
+  todayEls.innerHTML    = '';
+  upcomingEls.innerHTML = '';
+
+  const todayEvts    = events.filter(e => isToday(e.start?.dateTime || e.start?.date));
+  const upcomingEvts = events.filter(e => !isToday(e.start?.dateTime || e.start?.date)).slice(0,5);
+
+  if (todayEvts.length === 0) {
+    todayEls.innerHTML = '<div class="empty-msg">Nothing scheduled today</div>';
+  } else {
+    todayEvts.forEach(e => todayEls.appendChild(buildEventEl(e)));
+  }
+
+  if (upcomingEvts.length === 0) {
+    upcomingEls.innerHTML = '<div class="empty-msg">Nothing coming up</div>';
+  } else {
+    upcomingEvts.forEach(e => upcomingEls.appendChild(buildEventEl(e)));
+  }
+
+  renderGlance(todayEvts, upcomingEvts);
+}
+
+// ── Reminders (demo — Apple Reminders has no public browser API) ───────────────
+const DEMO_REMINDERS = [
+  { title: 'Chase CAMHS referral letter', priority: 'high', due: 'Today' },
+  { title: 'Review Food Label System brief', priority: 'high', due: 'Today' },
+  { title: 'Update Asana – Food Safe System', priority: 'medium', due: 'This week' },
+  { title: 'Check Solis battery schedule', priority: 'low', due: null },
+];
+
+function renderReminders() {
+  const list = document.getElementById('reminder-list');
+  list.innerHTML = '';
+  const pColors = { high: 'var(--red)', medium: 'var(--amber)', low: 'var(--muted)' };
+  DEMO_REMINDERS.forEach(r => {
+    const el = document.createElement('div');
+    el.className = 'reminder-item';
+    el.innerHTML = `
+      <div class="priority-pip" style="background:${pColors[r.priority]}"></div>
+      <div class="reminder-text">${r.title}</div>
+      ${r.due ? `<div class="reminder-due">${r.due}</div>` : ''}
+    `;
+    list.appendChild(el);
+  });
+}
+
+// ── At a Glance panel ─────────────────────────────────────────────────────────
+function renderGlance(today, upcoming) {
+  const el = document.getElementById('glance-content');
+  const now = new Date();
+  const hour = now.getHours();
+  const greeting = hour < 12 ? 'Good morning' : hour < 17 ? 'Good afternoon' : 'Good evening';
+
+  const nextEvent = today.find(e => new Date(e.start?.dateTime || e.start?.date) > now) || upcoming[0];
+  const nextStr   = nextEvent
+    ? `Next: <strong>${nextEvent.summary}</strong> at ${fmtEvtTime(nextEvent.start?.dateTime || nextEvent.start?.date)}`
+    : 'No more events today';
+
+  el.innerHTML = `
+    <div style="font-family:'DM Serif Display',serif;font-size:clamp(1rem,2.2vw,1.4rem);color:var(--text);line-height:1.3">${greeting}, Sarah</div>
+    <div style="font-size:0.72rem;color:var(--dim);line-height:1.5;">${nextStr}</div>
+    <div style="font-family:'DM Mono',monospace;font-size:0.65rem;color:var(--muted);margin-top:4px;line-height:1.6;">
+      ${today.length} event${today.length!==1?'s':''} today · ${upcoming.length} upcoming<br>
+      ${DEMO_REMINDERS.filter(r=>r.priority==='high').length} high-priority reminders
+    </div>
+  `;
+}
+
+// ── Status bar ────────────────────────────────────────────────────────────────
+function updateStatus() {
+  const t = new Date();
+  document.getElementById('last-updated').textContent =
+    t.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
+}
+
+// ── Main refresh ──────────────────────────────────────────────────────────────
+async function refreshAll() {
+  await Promise.all([
+    fetchSolar(),
+    fetchCalendar(),
+    fetchWeather(),
+  ]);
+  renderReminders();
+  updateStatus();
+}
+
+// Keep awake (prevents iPad sleep on page focus)
+let noSleep;
+document.addEventListener('touchstart', () => {
+  if (!noSleep) {
+    const v = document.createElement('video');
+    v.setAttribute('loop','');
+    v.setAttribute('playsinline','');
+    v.setAttribute('webkit-playsinline','');
+    v.setAttribute('muted','');
+    v.src = 'data:video/mp4;base64,AAAAIGZ0eXBpc29tAAACAGlzb21pc28yYXZjMW1wNDEAAAAIZnJlZQAAAu1tZGF0';
+    v.style.cssText = 'position:fixed;opacity:0;width:1px;height:1px';
+    document.body.appendChild(v);
+    v.play().catch(()=>{});
+    noSleep = v;
+  }
+}, { once: true });
+
+// Start
+refreshAll();
+setInterval(refreshAll, 5 * 60 * 1000); // refresh every 5 min
+setInterval(fetchSolar, 60 * 1000);     // solar every 1 min
+
+// Close config on backdrop tap
+document.getElementById('config-overlay').addEventListener('click', function(e) {
+  if (e.target === this) closeConfig();
+});
+</script>
+</body>
+</html>

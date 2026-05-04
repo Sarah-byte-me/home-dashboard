@@ -531,52 +531,43 @@
         <span id="solar-status-chip" style="margin-left:auto;font-size: 1.16rem;color:var(--dim)">— not configured</span>
       </div>
 
-      <div id="solar-main">
-        <div>
-          <div class="solar-big-num" id="solar-power">—</div>
-          <div class="solar-big-unit">kW generating now</div>
+      <div id="solar-main" style="display:grid;grid-template-columns:1fr 1fr;gap:10px;flex:1;">
+
+        <!-- PV Output -->
+        <div class="solar-stat">
+          <div class="solar-stat-lbl">☀ PV Output</div>
+          <div class="solar-stat-val" id="stat-pv">—</div>
         </div>
 
-        <div class="solar-row">
-          <div class="solar-stat">
-            <div class="solar-stat-val" id="solar-today">—</div>
-            <div class="solar-stat-lbl">kWh Today</div>
-          </div>
-          <div class="solar-stat">
-            <div class="solar-stat-val" id="solar-month">—</div>
-            <div class="solar-stat-lbl">kWh Month</div>
-          </div>
+        <!-- Home Load -->
+        <div class="solar-stat">
+          <div class="solar-stat-lbl">🏠 Home Load</div>
+          <div class="solar-stat-val" id="stat-load">—</div>
         </div>
 
-        <div>
-          <div class="batt-wrap">
-            <div style="display:flex;justify-content:space-between;align-items:baseline;">
-              <div class="solar-stat-lbl">Battery</div>
-              <div class="batt-pct" id="batt-pct" style="color:var(--green)">—</div>
-            </div>
-            <div class="batt-track">
-              <div class="batt-fill" id="batt-fill" style="width:0%;background:var(--green)"></div>
-            </div>
-            <div class="batt-labels">
-              <span>0%</span><span>50%</span><span>100%</span>
+        <!-- Battery -->
+        <div class="solar-stat" style="grid-column:span 2;">
+          <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:6px;">
+            <div class="solar-stat-lbl">🔋 Battery</div>
+            <div style="display:flex;align-items:baseline;gap:8px;">
+              <div class="solar-stat-val" id="stat-batt" style="color:var(--green)">—</div>
+              <div class="solar-stat-lbl" id="stat-batt-label" style="color:var(--green)">—</div>
             </div>
           </div>
-        </div>
-
-        <div style="display:flex;flex-direction:column;gap:6px;">
-          <div class="flow-row" id="grid-flow">
-            <div class="flow-dot" style="background:var(--dim)"></div>
-            <span style="color:var(--dim)">Grid: —</span>
-          </div>
-          <div class="flow-row" id="batt-flow">
-            <div class="flow-dot" style="background:var(--dim)"></div>
-            <span style="color:var(--dim)">Battery: —</span>
+          <div class="batt-track">
+            <div class="batt-fill" id="batt-fill" style="width:0%;background:var(--green)"></div>
           </div>
         </div>
 
-        <a href="https://www.soliscloud.com/overview/plantStation/details/overview/1298491919450444290?glyun_vue2=%2F%23%2FoperationDetails" target="_blank" style="display:flex;align-items:center;justify-content:center;gap:8px;padding:10px 0;background:#f5c84214;border:1px solid #f5c84230;border-radius:10px;text-decoration:none;color:var(--sun);font-family:'DM Mono',monospace;font-size: 1.44rem;letter-spacing:0.08em;margin-top:4px;">
-          ☀ View Live Data →
-        </a>
+        <!-- Grid -->
+        <div class="solar-stat" style="grid-column:span 2;">
+          <div class="solar-stat-lbl">⚡ Grid</div>
+          <div style="display:flex;align-items:baseline;gap:8px;margin-top:4px;">
+            <div class="solar-stat-val" id="stat-grid" style="color:var(--green)">—</div>
+            <div class="solar-stat-lbl" id="stat-grid-label" style="color:var(--green)">—</div>
+          </div>
+        </div>
+
       </div>
     </div>
 
@@ -760,30 +751,31 @@ const DEMO_SOLAR = {
 };
 
 function renderSolar(d, isDemo) {
-  document.getElementById('solar-power').textContent  = d.currentPower.toFixed(2);
-  document.getElementById('solar-today').textContent  = d.todayEnergy.toFixed(1);
-  document.getElementById('solar-month').textContent  = d.monthEnergy.toFixed(1);
+  document.getElementById('solar-status-chip').textContent = isDemo ? '● demo' : '● live';
+  document.getElementById('solar-status-chip').style.color = isDemo ? 'var(--amber)' : 'var(--green)';
 
+  // PV Output
+  document.getElementById('stat-pv').textContent = d.currentPower.toFixed(2) + ' kW';
+
+  // Load
+  const load = (parseFloat(d.currentPower) + (d.gridExporting ? -parseFloat(d.gridPower) : parseFloat(d.gridPower))).toFixed(2);
+  document.getElementById('stat-load').textContent = load + ' kW';
+
+  // Battery
   const battColor = d.batterySOC > 50 ? 'var(--green)' : d.batterySOC > 20 ? 'var(--amber)' : 'var(--red)';
-  document.getElementById('batt-pct').textContent      = `${d.batterySOC}%`;
-  document.getElementById('batt-pct').style.color      = battColor;
-  document.getElementById('batt-fill').style.width     = `${d.batterySOC}%`;
+  document.getElementById('stat-batt').textContent = d.batterySOC + '%';
+  document.getElementById('stat-batt').style.color = battColor;
+  document.getElementById('stat-batt-label').textContent = d.batteryCharging ? '⬆ Charging' : '⬇ Discharging';
+  document.getElementById('stat-batt-label').style.color = battColor;
+  document.getElementById('batt-fill').style.width = d.batterySOC + '%';
   document.getElementById('batt-fill').style.background = battColor;
 
-  const gridEl = document.getElementById('grid-flow');
-  gridEl.querySelector('.flow-dot').style.background = d.gridExporting ? 'var(--green)' : 'var(--amber)';
-  gridEl.querySelector('span').textContent = d.gridExporting
-    ? `Grid: Exporting ${d.gridPower.toFixed(2)} kW`
-    : `Grid: Importing ${d.gridPower.toFixed(2)} kW`;
-  gridEl.querySelector('span').style.color = d.gridExporting ? 'var(--green)' : 'var(--amber)';
-
-  const battEl = document.getElementById('batt-flow');
-  battEl.querySelector('.flow-dot').style.background = d.batteryCharging ? 'var(--green)' : 'var(--violet)';
-  battEl.querySelector('span').textContent = d.batteryCharging ? 'Battery: Charging' : 'Battery: Discharging';
-  battEl.querySelector('span').style.color = d.batteryCharging ? 'var(--green)' : 'var(--violet)';
-
-  document.getElementById('solar-status-chip').textContent = isDemo ? '● demo data' : '● live';
-  document.getElementById('solar-status-chip').style.color = isDemo ? 'var(--amber)' : 'var(--green)';
+  // Grid
+  const gridColor = d.gridExporting ? 'var(--green)' : 'var(--amber)';
+  document.getElementById('stat-grid').textContent = d.gridPower.toFixed(2) + ' kW';
+  document.getElementById('stat-grid').style.color = gridColor;
+  document.getElementById('stat-grid-label').textContent = d.gridExporting ? '⬆ Exporting' : '⬇ Importing';
+  document.getElementById('stat-grid-label').style.color = gridColor;
 }
 
 async function fetchSolar() {

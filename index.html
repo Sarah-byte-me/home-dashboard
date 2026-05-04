@@ -6,7 +6,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <title>Home Dashboard</title>
-<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@300;400;500&family=Instrument+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;600;700&family=Lexend+Deca:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
   :root {
     --bg:       #0a0c0f;
@@ -29,7 +29,7 @@
   body {
     background: var(--bg);
     color: var(--text);
-    font-family: 'Instrument Sans', sans-serif;
+    font-family: 'Lexend', sans-serif;
     height: 100dvh;
     width: 100dvw;
     overflow: hidden;
@@ -69,11 +69,11 @@
   }
 
   #clock {
-    font-family: 'DM Serif Display', serif;
-    font-size: clamp(2.8rem, 7vw, 4.8rem);
+    font-family: 'Lexend', sans-serif;
+    font-size: clamp(5.60rem, 14.00vw, 9.60rem);
     letter-spacing: -0.02em;
     color: var(--text);
-    line-height: 1;
+    line-height: 1.7;
   }
 
   #clock em {
@@ -82,21 +82,21 @@
   }
 
   #date-line {
-    font-family: 'DM Mono', monospace;
-    font-size: clamp(0.65rem, 1.4vw, 0.85rem);
+    font-family: 'Lexend Deca', sans-serif;
+    font-size: clamp(1.30rem, 2.80vw, 1.70rem);
     color: var(--dim);
-    letter-spacing: 0.12em;
+    letter-spacing: 0.05em;
     text-transform: uppercase;
     text-align: right;
-    line-height: 1.6;
+    line-height: 1.7;
   }
 
   #weather-chip {
     display: flex;
     align-items: center;
     gap: 6px;
-    font-family: 'DM Mono', monospace;
-    font-size: 0.78rem;
+    font-family: 'Lexend Deca', sans-serif;
+    font-size: 1.56rem;
     color: var(--dim);
     margin-top: 4px;
     justify-content: flex-end;
@@ -150,9 +150,9 @@
 
   /* ── Card header ── */
   .card-label {
-    font-family: 'DM Mono', monospace;
-    font-size: 0.6rem;
-    letter-spacing: 0.18em;
+    font-family: 'Lexend Deca', sans-serif;
+    font-size: 1.20rem;
+    letter-spacing: 0.05em;
     text-transform: uppercase;
     color: var(--muted);
     display: flex;
@@ -177,19 +177,19 @@
   }
 
   .solar-big-num {
-    font-family: 'DM Serif Display', serif;
-    font-size: clamp(2.4rem, 6vw, 4rem);
-    line-height: 1;
+    font-family: 'Lexend', sans-serif;
+    font-size: clamp(4.80rem, 12.00vw, 8.00rem);
+    line-height: 1.7;
     color: var(--sun);
     letter-spacing: -0.02em;
   }
 
   .solar-big-unit {
-    font-family: 'DM Mono', monospace;
-    font-size: 0.7rem;
+    font-family: 'Lexend Deca', sans-serif;
+    font-size: 1.40rem;
     color: var(--dim);
     margin-top: 2px;
-    letter-spacing: 0.08em;
+    letter-spacing: 0.03em;
   }
 
   .solar-row {
@@ -206,16 +206,16 @@
   }
 
   .solar-stat-val {
-    font-family: 'DM Mono', monospace;
-    font-size: clamp(0.95rem, 2.2vw, 1.3rem);
+    font-family: 'Lexend Deca', sans-serif;
+    font-size: clamp(1.90rem, 4.40vw, 2.60rem);
     font-weight: 500;
     color: var(--text);
-    line-height: 1;
+    line-height: 1.7;
   }
 
   .solar-stat-lbl {
-    font-family: 'DM Mono', monospace;
-    font-size: 0.58rem;
+    font-family: 'Lexend Deca', sans-serif;
+    font-size: 1.16rem;
     color: var(--dim);
     margin-top: 3px;
     letter-spacing: 0.1em;
@@ -245,14 +245,14 @@
   .batt-labels {
     display: flex;
     justify-content: space-between;
-    font-family: 'DM Mono', monospace;
-    font-size: 0.6rem;
+    font-family: 'Lexend Deca', sans-serif;
+    font-size: 1.20rem;
     color: var(--dim);
   }
 
   .batt-pct {
-    font-family: 'DM Mono', monospace;
-    font-size: clamp(0.9rem, 2vw, 1.2rem);
+    font-family: 'Lexend Deca', sans-serif;
+    font-size: clamp(1.80rem, 4.00vw, 2.40rem);
     font-weight: 500;
   }
 
@@ -261,8 +261,8 @@
     display: flex;
     align-items: center;
     gap: 8px;
-    font-family: 'DM Mono', monospace;
-    font-size: 0.7rem;
+    font-family: 'Lexend Deca', sans-serif;
+    font-size: 1.40rem;
   }
 
   .flow-dot {
@@ -299,8 +299,8 @@
   .event-item.urgent { border-left-color: var(--amber); }
 
   .event-time {
-    font-family: 'DM Mono', monospace;
-    font-size: 0.6rem;
+    font-family: 'Lexend Deca', sans-serif;
+    font-size: 1.20rem;
     color: var(--dim);
     letter-spacing: 0.05em;
     white-space: nowrap;
@@ -309,17 +309,17 @@
   }
 
   .event-title {
-    font-size: 0.78rem;
-    line-height: 1.3;
+    font-size: 1.56rem;
+    line-height: 1.7;
     color: var(--text);
     font-weight: 500;
   }
 
   .event-cal {
-    font-family: 'DM Mono', monospace;
-    font-size: 0.55rem;
+    font-family: 'Lexend Deca', sans-serif;
+    font-size: 1.10rem;
     margin-top: 2px;
-    letter-spacing: 0.08em;
+    letter-spacing: 0.03em;
   }
 
   /* ── Reminders card ── */
@@ -348,15 +348,15 @@
   }
 
   .reminder-text {
-    font-size: 0.76rem;
+    font-size: 1.52rem;
     color: var(--text);
-    line-height: 1.3;
+    line-height: 1.7;
     flex: 1;
   }
 
   .reminder-due {
-    font-family: 'DM Mono', monospace;
-    font-size: 0.55rem;
+    font-family: 'Lexend Deca', sans-serif;
+    font-size: 1.10rem;
     color: var(--dim);
     white-space: nowrap;
   }
@@ -390,8 +390,8 @@
   }
 
   .config-title {
-    font-family: 'DM Serif Display', serif;
-    font-size: 1.5rem;
+    font-family: 'Lexend', sans-serif;
+    font-size: 3.00rem;
     color: var(--text);
   }
 
@@ -402,9 +402,9 @@
   }
 
   .config-section-label {
-    font-family: 'DM Mono', monospace;
-    font-size: 0.62rem;
-    letter-spacing: 0.15em;
+    font-family: 'Lexend Deca', sans-serif;
+    font-size: 1.24rem;
+    letter-spacing: 0.05em;
     text-transform: uppercase;
     color: var(--dim);
   }
@@ -415,8 +415,8 @@
     border-radius: 10px;
     padding: 10px 14px;
     color: var(--text);
-    font-family: 'DM Mono', monospace;
-    font-size: 0.8rem;
+    font-family: 'Lexend Deca', sans-serif;
+    font-size: 1.60rem;
     width: 100%;
     outline: none;
   }
@@ -424,9 +424,9 @@
   .config-input:focus { border-color: var(--muted); }
 
   .config-hint {
-    font-size: 0.68rem;
+    font-size: 1.36rem;
     color: var(--dim);
-    line-height: 1.5;
+    line-height: 1.7;
   }
 
   .config-hint a { color: var(--blue); text-decoration: none; }
@@ -441,8 +441,8 @@
     padding: 10px 20px;
     border-radius: 10px;
     border: none;
-    font-family: 'Instrument Sans', sans-serif;
-    font-size: 0.82rem;
+    font-family: 'Lexend', sans-serif;
+    font-size: 1.64rem;
     font-weight: 600;
     cursor: pointer;
     letter-spacing: 0.02em;
@@ -464,7 +464,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 1rem;
+    font-size: 2.00rem;
     cursor: pointer;
     opacity: 0.4;
     transition: opacity 0.2s;
@@ -477,8 +477,8 @@
     position: fixed;
     bottom: 6px;
     left: 20px;
-    font-family: 'DM Mono', monospace;
-    font-size: 0.55rem;
+    font-family: 'Lexend Deca', sans-serif;
+    font-size: 1.10rem;
     color: var(--muted);
     letter-spacing: 0.1em;
     z-index: 10;
@@ -486,8 +486,8 @@
 
   /* ── Empty state ── */
   .empty-msg {
-    font-family: 'DM Mono', monospace;
-    font-size: 0.68rem;
+    font-family: 'Lexend Deca', sans-serif;
+    font-size: 1.36rem;
     color: var(--muted);
     font-style: italic;
     padding: 8px 0;
@@ -524,17 +524,14 @@
   <div id="grid">
 
     <!-- SOLAR — spans 2 rows -->
-    <div class="card" id="solar-card" style="padding:0;overflow:hidden;">
-      <div class="card-label" style="padding:12px 16px 8px;position:absolute;top:0;left:0;right:0;z-index:2;background:linear-gradient(var(--surface),transparent);">
+    <div class="card" id="solar-card">
+      <div class="card-label">
         <div class="dot" style="background:var(--sun)"></div>
         Solar System
+        <span id="solar-status-chip" style="margin-left:auto;font-size: 1.16rem;color:var(--dim)">— not configured</span>
       </div>
-      <iframe
-        src="https://www.soliscloud.com/overview/plantStation/details/overview/1298491919450444290?glyun_vue2=%2F%23%2FoperationDetails"
-        style="width:100%;height:100%;border:none;border-radius:var(--radius);"
-        allow="fullscreen">
-      </iframe>
-      <div id="solar-main" style="display:none;">
+
+      <div id="solar-main">
         <div>
           <div class="solar-big-num" id="solar-power">—</div>
           <div class="solar-big-unit">kW generating now</div>
@@ -577,7 +574,7 @@
           </div>
         </div>
 
-        <a href="https://www.soliscloud.com/overview/plantStation/details/overview/1298491919450444290?glyun_vue2=%2F%23%2FoperationDetails" target="_blank" style="display:flex;align-items:center;justify-content:center;gap:8px;padding:10px 0;background:#f5c84214;border:1px solid #f5c84230;border-radius:10px;text-decoration:none;color:var(--sun);font-family:'DM Mono',monospace;font-size:0.72rem;letter-spacing:0.08em;margin-top:4px;">
+        <a href="https://www.soliscloud.com/overview/plantStation/details/overview/1298491919450444290?glyun_vue2=%2F%23%2FoperationDetails" target="_blank" style="display:flex;align-items:center;justify-content:center;gap:8px;padding:10px 0;background:#f5c84214;border:1px solid #f5c84230;border-radius:10px;text-decoration:none;color:var(--sun);font-family:'DM Mono',monospace;font-size: 1.44rem;letter-spacing:0.08em;margin-top:4px;">
           ☀ View Live Data →
         </a>
       </div>
@@ -790,20 +787,42 @@ function renderSolar(d, isDemo) {
 }
 
 async function fetchSolar() {
-  const cfg = loadConfig();
-  if (!cfg.solisProxy || !cfg.solisKeyId || !cfg.solisSecret) {
-    renderSolar(DEMO_SOLAR, true);
-    return;
-  }
+  const proxyUrl = 'https://bold-firefly-8b7f.sarahcmeaney.workers.dev';
   try {
-    const res = await fetch(`${cfg.solisProxy}/api/solar`, {
+    // Get station list
+    const stationRes = await fetch(proxyUrl + '/v1/api/userStationList', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ keyId: cfg.solisKeyId, keySecret: cfg.solisSecret })
+      body: JSON.stringify({ pageNo: 1, pageSize: 10 })
     });
-    const d = await res.json();
-    renderSolar(d, false);
-  } catch {
+    const stationData = await stationRes.json();
+    if (!stationData.data?.page?.records?.length) {
+      renderSolar(DEMO_SOLAR, true); return;
+    }
+    const stationId = stationData.data.page.records[0].id;
+
+    // Get station detail
+    const detailRes = await fetch(proxyUrl + '/v1/api/stationDetail', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id: stationId })
+    });
+    const detail = await detailRes.json();
+    const d = detail.data;
+    if (!d) { renderSolar(DEMO_SOLAR, true); return; }
+
+    renderSolar({
+      currentPower: parseFloat(d.power || 0),
+      todayEnergy:  parseFloat(d.dayEnergy || 0),
+      monthEnergy:  parseFloat(d.monthEnergy || 0),
+      batterySOC:   parseFloat(d.batterySOC || 0),
+      batteryCharging: parseFloat(d.batteryPower || 0) > 0,
+      gridExporting:   parseFloat(d.gridPower || 0) > 0,
+      gridPower:    Math.abs(parseFloat(d.gridPower || 0)),
+      status: 'online'
+    }, false);
+  } catch(e) {
+    console.error('Solar fetch error:', e);
     renderSolar(DEMO_SOLAR, true);
   }
 }
@@ -829,14 +848,22 @@ const DEMO_EVENTS = [
 
 function fmtEvtTime(raw) {
   if (!raw) return '';
-  const d = new Date(raw);
+  // All-day events have date only (YYYY-MM-DD), no time
+  const isAllDay = /^\d{4}-\d{2}-\d{2}$/.test(raw);
+  const d = isAllDay ? new Date(raw + 'T00:00:00') : new Date(raw);
   const today = new Date(); today.setHours(0,0,0,0);
   const evDay = new Date(d); evDay.setHours(0,0,0,0);
   const diff = Math.round((evDay-today)/86400000);
+  const dateStr = d.toLocaleDateString('en-GB',{weekday:'short',day:'numeric',month:'short'});
+  if (isAllDay) {
+    if (diff === 0) return 'All day';
+    if (diff === 1) return 'Tomorrow';
+    return dateStr;
+  }
   const timeStr = d.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'});
   if (diff === 0) return timeStr;
   if (diff === 1) return `Tomorrow ${timeStr}`;
-  return `${d.toLocaleDateString('en-GB',{weekday:'short',day:'numeric',month:'short'})} ${timeStr}`;
+  return `${dateStr} ${timeStr}`;
 }
 
 function isToday(raw) {
@@ -974,9 +1001,9 @@ function renderGlance(today, upcoming) {
     : 'No more events today';
 
   el.innerHTML = `
-    <div style="font-family:'DM Serif Display',serif;font-size:clamp(1rem,2.2vw,1.4rem);color:var(--text);line-height:1.3">${greeting}, Sarah</div>
-    <div style="font-size:0.72rem;color:var(--dim);line-height:1.5;">${nextStr}</div>
-    <div style="font-family:'DM Mono',monospace;font-size:0.65rem;color:var(--muted);margin-top:4px;line-height:1.6;">
+    <div style="font-family:'DM Serif Display',serif;font-size:clamp(2.00rem, 4.40vw, 2.80rem);color:var(--text);line-height:1.3">${greeting}, Sarah</div>
+    <div style="font-size: 1.44rem;color:var(--dim);line-height:1.5;">${nextStr}</div>
+    <div style="font-family:'DM Mono',monospace;font-size: 1.30rem;color:var(--muted);margin-top:4px;line-height:1.6;">
       ${today.length} event${today.length!==1?'s':''} today · ${upcoming.length} upcoming<br>
       ${DEMO_REMINDERS.filter(r=>r.priority==='high').length} high-priority reminders
     </div>

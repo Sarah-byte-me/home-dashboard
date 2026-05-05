@@ -758,8 +758,7 @@ function renderSolar(d, isDemo) {
   document.getElementById('stat-pv').textContent = d.currentPower.toFixed(2) + ' kW';
 
   // Load
-  const load = (parseFloat(d.currentPower) + (d.gridExporting ? -parseFloat(d.gridPower) : parseFloat(d.gridPower))).toFixed(2);
-  document.getElementById('stat-load').textContent = load + ' kW';
+  document.getElementById('stat-load').textContent = (d.homeLoad || 0).toFixed(2) + ' kW';
 
   // Battery
   const battColor = d.batterySOC > 50 ? 'var(--green)' : d.batterySOC > 20 ? 'var(--amber)' : 'var(--red)';
@@ -781,7 +780,7 @@ function renderSolar(d, isDemo) {
 async function fetchSolar() {
   const proxyUrl = 'https://bold-firefly-8b7f.sarahcmeaney.workers.dev';
   try {
-    // Get station list
+    // Get station list to get ID
     const stationRes = await fetch(proxyUrl + '/v1/api/userStationList', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -793,7 +792,7 @@ async function fetchSolar() {
     }
     const stationId = stationData.data.page.records[0].id;
 
-    // Get station detail
+    // Get station detail for live power values
     const detailRes = await fetch(proxyUrl + '/v1/api/stationDetail', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -803,15 +802,21 @@ async function fetchSolar() {
     const d = detail.data;
     if (!d) { renderSolar(DEMO_SOLAR, true); return; }
 
+    // batteryDirection: 1 = charging, 0 = idle, -1 = discharging
+    const batteryCharging = parseInt(d.batteryDirection || 0) === 1;
+    // psum > 0 = importing, psum < 0 = exporting
+    const psumVal = parseFloat(d.psum || 0);
+    const gridExporting = psumVal < 0;
+
     renderSolar({
-      currentPower: parseFloat(d.power || 0),
-      todayEnergy:  parseFloat(d.dayEnergy || 0),
-      monthEnergy:  parseFloat(d.monthEnergy || 0),
-      batterySOC:   parseFloat(d.batterySOC || 0),
-      batteryCharging: parseFloat(d.batteryPower || 0) > 0,
-      gridExporting:   parseFloat(d.gridPower || 0) > 0,
-      gridPower:    Math.abs(parseFloat(d.gridPower || 0)),
-      status: 'online'
+      currentPower:    parseFloat(d.power || 0),
+      homeLoad:        parseFloat(d.familyLoadPower || 0),
+      batterySOC:      parseInt(d.batteryPercent || 0),
+      batteryPower:    parseFloat(d.batteryPower || 0),
+      batteryCharging: batteryCharging,
+      gridExporting:   gridExporting,
+      gridPower:       Math.abs(psumVal),
+      status:          'online'
     }, false);
   } catch(e) {
     console.error('Solar fetch error:', e);

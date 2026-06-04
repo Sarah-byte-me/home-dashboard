@@ -8,20 +8,42 @@
 <title>Home Dashboard</title>
 <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;600;700&family=Lexend+Deca:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
+  /* ── Light / Dark via macOS system preference ── */
   :root {
-    --bg:       #0a0c0f;
-    --surface:  #111318;
-    --border:   #1e2128;
-    --muted:    #3a3f4a;
-    --text:     #e8eaf0;
-    --dim:      #7a8090;
-    --sun:      #f5c842;
-    --green:    #3dd68c;
-    --blue:     #4da6ff;
-    --amber:    #f59e0b;
-    --red:      #f87171;
-    --violet:   #a78bfa;
-    --radius:   16px;
+    --bg:       #f0f2f5;
+    --surface:  #ffffff;
+    --surface2: #f7f8fa;
+    --border:   #dde1e8;
+    --muted:    #9aa0ad;
+    --text:     #1a1d23;
+    --dim:      #6b7280;
+    --sun:      #d97706;
+    --green:    #16a34a;
+    --blue:     #2563eb;
+    --amber:    #d97706;
+    --red:      #dc2626;
+    --violet:   #7c3aed;
+    --radius:   20px;
+    --shadow:   0 2px 16px rgba(0,0,0,0.08), 0 1px 3px rgba(0,0,0,0.06);
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg:       #0a0c0f;
+      --surface:  #111318;
+      --surface2: #0a0c0f;
+      --border:   #1e2128;
+      --muted:    #3a3f4a;
+      --text:     #e8eaf0;
+      --dim:      #7a8090;
+      --sun:      #f5c842;
+      --green:    #3dd68c;
+      --blue:     #4da6ff;
+      --amber:    #f59e0b;
+      --red:      #f87171;
+      --violet:   #a78bfa;
+      --shadow:   0 2px 16px rgba(0,0,0,0.4), 0 1px 3px rgba(0,0,0,0.3);
+    }
   }
 
   * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
@@ -35,6 +57,7 @@
     overflow: hidden;
     display: flex;
     flex-direction: column;
+    transition: background 0.3s ease, color 0.3s ease;
   }
 
   /* ── Background texture ── */
@@ -43,10 +66,18 @@
     position: fixed;
     inset: 0;
     background:
-      radial-gradient(ellipse 80% 60% at 10% 0%, #f5c84208 0%, transparent 60%),
-      radial-gradient(ellipse 60% 80% at 90% 100%, #4da6ff06 0%, transparent 60%);
+      radial-gradient(ellipse 80% 60% at 10% 0%, #f5c84210 0%, transparent 60%),
+      radial-gradient(ellipse 60% 80% at 90% 100%, #4da6ff08 0%, transparent 60%);
     pointer-events: none;
     z-index: 0;
+  }
+
+  @media (prefers-color-scheme: light) {
+    body::before {
+      background:
+        radial-gradient(ellipse 80% 60% at 10% 0%, #f5c84218 0%, transparent 60%),
+        radial-gradient(ellipse 60% 80% at 90% 100%, #2563eb0a 0%, transparent 60%);
+    }
   }
 
   /* ── Layout ── */
@@ -123,6 +154,8 @@
     overflow: hidden;
     position: relative;
     animation: fadeUp 0.5s ease both;
+    box-shadow: var(--shadow);
+    transition: background 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
   }
 
   .card::after {
@@ -130,8 +163,14 @@
     position: absolute;
     inset: 0;
     border-radius: var(--radius);
-    box-shadow: inset 0 1px 0 #ffffff08;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.08);
     pointer-events: none;
+  }
+
+  @media (prefers-color-scheme: light) {
+    .card::after {
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.9);
+    }
   }
 
   @keyframes fadeUp {
@@ -199,10 +238,11 @@
 
   .solar-stat {
     flex: 1;
-    background: #0a0c0f;
+    background: var(--surface2);
     border: 1px solid var(--border);
-    border-radius: 10px;
+    border-radius: 12px;
     padding: 10px 12px;
+    transition: background 0.3s ease;
   }
 
   .solar-stat-val {
@@ -290,10 +330,11 @@
     align-items: flex-start;
     gap: 9px;
     padding: 8px 10px;
-    background: #0a0c0f;
-    border-radius: 10px;
+    background: var(--surface2);
+    border-radius: 12px;
     border-left: 2.5px solid transparent;
     flex-shrink: 0;
+    transition: background 0.3s ease;
   }
 
   .event-item.urgent { border-left-color: var(--amber); }
@@ -336,9 +377,10 @@
     align-items: center;
     gap: 9px;
     padding: 8px 10px;
-    background: #0a0c0f;
-    border-radius: 10px;
+    background: var(--surface2);
+    border-radius: 12px;
     flex-shrink: 0;
+    transition: background 0.3s ease;
   }
 
   .priority-pip {
@@ -361,11 +403,92 @@
     white-space: nowrap;
   }
 
+  /* ── Weather tile ── */
+  #weather-card {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .weather-days {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    flex: 1;
+    justify-content: center;
+  }
+
+  .weather-day {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 10px 14px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    transition: background 0.3s ease;
+  }
+
+  .weather-day-label {
+    font-family: 'Lexend Deca', sans-serif;
+    font-size: 1.20rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--dim);
+    min-width: 72px;
+  }
+
+  .weather-icon-big {
+    font-size: 2.00rem;
+    line-height: 1;
+  }
+
+  .weather-desc {
+    flex: 1;
+    font-size: 1.40rem;
+    color: var(--text);
+    line-height: 1.4;
+  }
+
+  .weather-desc small {
+    display: block;
+    font-family: 'Lexend Deca', sans-serif;
+    font-size: 1.10rem;
+    color: var(--dim);
+    margin-top: 2px;
+  }
+
+  .weather-temp {
+    font-family: 'Lexend', sans-serif;
+    font-size: clamp(1.80rem, 3.60vw, 2.40rem);
+    font-weight: 600;
+    color: var(--text);
+    white-space: nowrap;
+  }
+
+  .weather-temp span {
+    font-size: 0.75em;
+    color: var(--dim);
+    font-weight: 400;
+  }
+
+  .weather-no-key {
+    font-family: 'Lexend Deca', sans-serif;
+    font-size: 1.36rem;
+    color: var(--muted);
+    font-style: italic;
+    text-align: center;
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
   /* ── Config overlay ── */
   #config-overlay {
     position: fixed;
     inset: 0;
-    background: #000000cc;
+    background: rgba(0,0,0,0.7);
     backdrop-filter: blur(12px);
     z-index: 100;
     display: flex;
@@ -379,7 +502,7 @@
   .config-box {
     background: var(--surface);
     border: 1px solid var(--border);
-    border-radius: 20px;
+    border-radius: 24px;
     padding: 28px 32px;
     width: min(560px, 90vw);
     max-height: 80dvh;
@@ -387,6 +510,7 @@
     display: flex;
     flex-direction: column;
     gap: 18px;
+    box-shadow: var(--shadow);
   }
 
   .config-title {
@@ -410,15 +534,16 @@
   }
 
   .config-input {
-    background: #0a0c0f;
+    background: var(--surface2);
     border: 1px solid var(--border);
-    border-radius: 10px;
+    border-radius: 12px;
     padding: 10px 14px;
     color: var(--text);
     font-family: 'Lexend Deca', sans-serif;
     font-size: 1.60rem;
     width: 100%;
     outline: none;
+    transition: border-color 0.2s;
   }
 
   .config-input:focus { border-color: var(--muted); }
@@ -439,7 +564,7 @@
 
   .btn {
     padding: 10px 20px;
-    border-radius: 10px;
+    border-radius: 12px;
     border: none;
     font-family: 'Lexend', sans-serif;
     font-size: 1.64rem;
@@ -448,7 +573,10 @@
     letter-spacing: 0.02em;
   }
 
-  .btn-primary { background: var(--sun); color: #0a0c0f; }
+  .btn-primary { background: var(--sun); color: #fff; }
+  @media (prefers-color-scheme: dark) {
+    .btn-primary { color: #0a0c0f; }
+  }
   .btn-ghost { background: var(--border); color: var(--dim); }
 
   /* ── Settings gear ── */
@@ -468,6 +596,7 @@
     cursor: pointer;
     opacity: 0.4;
     transition: opacity 0.2s;
+    box-shadow: var(--shadow);
   }
 
   #settings-btn:active { opacity: 1; }
@@ -604,14 +733,14 @@
       </div>
     </div>
 
-    <!-- QUICK STATS / FAMILY -->
-    <div class="card" id="family-card">
+    <!-- TODAY & TOMORROW WEATHER -->
+    <div class="card" id="weather-card">
       <div class="card-label">
-        <div class="dot" style="background:var(--green)"></div>
-        At a Glance
+        <div class="dot" style="background:var(--blue)"></div>
+        Weather · Newry
       </div>
-      <div id="glance-content" style="display:flex;flex-direction:column;gap:8px;flex:1;justify-content:center;">
-        <div class="empty-msg">Loading…</div>
+      <div class="weather-days" id="weather-days">
+        <div class="weather-no-key">Add an OpenWeatherMap key in settings to see forecast</div>
       </div>
     </div>
 
@@ -650,10 +779,10 @@
     </div>
 
     <div class="config-section">
-      <div class="config-section-label">🌤 Weather (optional)</div>
+      <div class="config-section-label">🌤 Weather</div>
       <input class="config-input" id="cfg-weather-key" placeholder="OpenWeatherMap API Key (free tier)" type="text">
       <div class="config-hint">
-        Free at <a href="https://openweathermap.org/api" target="_blank">openweathermap.org</a> — auto-shows Newry weather.
+        Free at <a href="https://openweathermap.org/api" target="_blank">openweathermap.org</a> — powers both the header chip and the Today/Tomorrow weather tile.
       </div>
     </div>
 
@@ -671,7 +800,6 @@ const CFG_KEY = 'home_dashboard_cfg';
 function loadConfig() {
   try {
     const stored = JSON.parse(localStorage.getItem(CFG_KEY)) || {};
-    // Pre-fill defaults if not already set
     if (!stored.gcalApiKey) stored.gcalApiKey = 'AIzaSyD2bv51Rr89KPYVG4-4qSyZ3HCVIWTnbFQ';
     if (!stored.gcalIds)    stored.gcalIds    = 'sarahcmeaney@gmail.com,family08911118207722332863@group.calendar.google.com,ginjiu1qiv63pngutneri1f1rk2b6s45@import.calendar.google.com,skg5s18m6194ha5h8ol17ulp69qd47iv@import.calendar.google.com';
     return stored;
@@ -722,21 +850,111 @@ function tickClock() {
 setInterval(tickClock, 1000);
 tickClock();
 
-// ── Weather ────────────────────────────────────────────────────────────────────
-async function fetchWeather() {
-  const cfg = loadConfig();
+// ── Weather icon map ───────────────────────────────────────────────────────────
+const WX_ICONS = {
+  Clear:'☀️', Clouds:'☁️', Rain:'🌧️', Drizzle:'🌦️',
+  Snow:'❄️', Thunderstorm:'⛈️', Mist:'🌫️', Fog:'🌫️', Haze:'🌫️'
+};
+
+function wxIcon(main) {
+  return WX_ICONS[main] || '🌡️';
+}
+
+// ── Header weather chip ────────────────────────────────────────────────────────
+async function fetchWeatherChip(cfg) {
   if (!cfg.weatherApiKey) return;
   try {
     const res = await fetch(
       `https://api.openweathermap.org/data/2.5/weather?q=Newry,GB&units=metric&appid=${cfg.weatherApiKey}`
     );
     const d = await res.json();
-    const icons = { Clear:'☀', Clouds:'☁', Rain:'🌧', Drizzle:'🌦', Snow:'❄', Thunderstorm:'⛈', Mist:'🌫', Fog:'🌫' };
-    const icon = icons[d.weather[0].main] || '🌡';
-    document.getElementById('weather-icon').textContent = icon;
+    document.getElementById('weather-icon').textContent = wxIcon(d.weather[0].main);
     document.getElementById('weather-text').textContent =
       `${Math.round(d.main.temp)}°C · ${d.weather[0].description} · Newry`;
-  } catch (e) { /* silent fail */ }
+  } catch (e) { /* silent */ }
+}
+
+// ── Weather tile (today + tomorrow forecast) ───────────────────────────────────
+async function fetchWeatherTile(cfg) {
+  const el = document.getElementById('weather-days');
+  if (!cfg.weatherApiKey) {
+    el.innerHTML = '<div class="weather-no-key">Add an OpenWeatherMap key in ⚙ settings to see the forecast</div>';
+    return;
+  }
+  try {
+    // Use 5-day / 3-hour forecast endpoint — free tier
+    const res = await fetch(
+      `https://api.openweathermap.org/data/2.5/forecast?q=Newry,GB&units=metric&cnt=16&appid=${cfg.weatherApiKey}`
+    );
+    const data = await res.json();
+    if (data.cod !== '200') throw new Error(data.message);
+
+    const today = new Date();
+    today.setHours(0,0,0,0);
+    const tomorrow = new Date(today);
+    tomorrow.setDate(tomorrow.getDate() + 1);
+
+    // Group by day
+    const days = {};
+    data.list.forEach(item => {
+      const d = new Date(item.dt * 1000);
+      const key = d.toDateString();
+      if (!days[key]) days[key] = [];
+      days[key].push(item);
+    });
+
+    const todayKey    = today.toDateString();
+    const tomorrowKey = tomorrow.toDateString();
+
+    function summariseDay(items, label) {
+      if (!items || !items.length) return null;
+      const temps = items.map(i => i.main.temp);
+      const minT  = Math.round(Math.min(...temps));
+      const maxT  = Math.round(Math.max(...temps));
+      // Pick midday reading if available, else first
+      const mid   = items.find(i => new Date(i.dt*1000).getHours() >= 11 && new Date(i.dt*1000).getHours() <= 14) || items[0];
+      const rain  = items.reduce((s, i) => s + (i.rain?.['3h'] || 0), 0).toFixed(1);
+      const wind  = Math.round(items.reduce((s,i) => s + i.wind.speed, 0) / items.length * 3.6); // m/s → km/h
+      const desc  = mid.weather[0].description;
+      const icon  = wxIcon(mid.weather[0].main);
+      return { label, minT, maxT, desc, icon, rain, wind };
+    }
+
+    const todaySummary    = summariseDay(days[todayKey],    'Today');
+    const tomorrowSummary = summariseDay(days[tomorrowKey], 'Tomorrow');
+
+    el.innerHTML = '';
+    [todaySummary, tomorrowSummary].forEach(day => {
+      if (!day) return;
+      const row = document.createElement('div');
+      row.className = 'weather-day';
+      row.innerHTML = `
+        <div class="weather-day-label">${day.label}</div>
+        <div class="weather-icon-big">${day.icon}</div>
+        <div class="weather-desc">
+          ${day.desc.charAt(0).toUpperCase() + day.desc.slice(1)}
+          <small>💨 ${day.wind} km/h · 🌧 ${day.rain}mm</small>
+        </div>
+        <div class="weather-temp">${day.maxT}° <span>/ ${day.minT}°</span></div>
+      `;
+      el.appendChild(row);
+    });
+
+    if (!todaySummary && !tomorrowSummary) {
+      el.innerHTML = '<div class="weather-no-key">No forecast data available</div>';
+    }
+  } catch(e) {
+    el.innerHTML = `<div class="weather-no-key">Weather unavailable</div>`;
+    console.error('Weather tile error:', e);
+  }
+}
+
+async function fetchWeather() {
+  const cfg = loadConfig();
+  await Promise.all([
+    fetchWeatherChip(cfg),
+    fetchWeatherTile(cfg),
+  ]);
 }
 
 // ── Solar ──────────────────────────────────────────────────────────────────────
@@ -753,14 +971,8 @@ const DEMO_SOLAR = {
 function renderSolar(d, isDemo) {
   document.getElementById('solar-status-chip').textContent = isDemo ? '● demo' : '● live';
   document.getElementById('solar-status-chip').style.color = isDemo ? 'var(--amber)' : 'var(--green)';
-
-  // PV Output
   document.getElementById('stat-pv').textContent = d.currentPower.toFixed(2) + ' kW';
-
-  // Load
   document.getElementById('stat-load').textContent = (d.homeLoad || 0).toFixed(2) + ' kW';
-
-  // Battery
   const battColor = d.batterySOC > 50 ? 'var(--green)' : d.batterySOC > 20 ? 'var(--amber)' : 'var(--red)';
   document.getElementById('stat-batt').textContent = d.batterySOC + '%';
   document.getElementById('stat-batt').style.color = battColor;
@@ -768,8 +980,6 @@ function renderSolar(d, isDemo) {
   document.getElementById('stat-batt-label').style.color = battColor;
   document.getElementById('batt-fill').style.width = d.batterySOC + '%';
   document.getElementById('batt-fill').style.background = battColor;
-
-  // Grid
   const gridColor = d.gridExporting ? 'var(--green)' : 'var(--amber)';
   document.getElementById('stat-grid').textContent = d.gridPower.toFixed(2) + ' kW';
   document.getElementById('stat-grid').style.color = gridColor;
@@ -780,7 +990,6 @@ function renderSolar(d, isDemo) {
 async function fetchSolar() {
   const proxyUrl = 'https://bold-firefly-8b7f.sarahcmeaney.workers.dev';
   try {
-    // Get station list to get ID
     const stationRes = await fetch(proxyUrl + '/v1/api/userStationList', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -791,8 +1000,6 @@ async function fetchSolar() {
       renderSolar(DEMO_SOLAR, true); return;
     }
     const stationId = stationData.data.page.records[0].id;
-
-    // Get station detail for live power values
     const detailRes = await fetch(proxyUrl + '/v1/api/stationDetail', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -801,13 +1008,9 @@ async function fetchSolar() {
     const detail = await detailRes.json();
     const d = detail.data;
     if (!d) { renderSolar(DEMO_SOLAR, true); return; }
-
-    // batteryDirection: 1 = charging, 0 = idle, -1 = discharging
     const batteryCharging = parseInt(d.batteryDirection || 0) === 1;
-    // psum > 0 = importing, psum < 0 = exporting
     const psumVal = parseFloat(d.psum || 0);
     const gridExporting = psumVal < 0;
-
     renderSolar({
       currentPower:    parseFloat(d.power || 0),
       homeLoad:        parseFloat(d.familyLoadPower || 0),
@@ -832,7 +1035,6 @@ const CAL_COLORS = {
   personal:     'var(--amber)',
   imported:     'var(--green)',
   "st. colman's": 'var(--green)',
-  work:           'var(--blue)',
 };
 
 const DEMO_EVENTS = [
@@ -845,7 +1047,6 @@ const DEMO_EVENTS = [
 
 function fmtEvtTime(raw) {
   if (!raw) return '';
-  // All-day events have date only (YYYY-MM-DD), no time
   const isAllDay = /^\d{4}-\d{2}-\d{2}$/.test(raw);
   const d = isAllDay ? new Date(raw + 'T00:00:00') : new Date(raw);
   const today = new Date(); today.setHours(0,0,0,0);
@@ -876,7 +1077,6 @@ function buildEventEl(ev) {
   const now      = new Date();
   const evTime   = new Date(dateTime);
   const urgent   = isToday(dateTime) && evTime > now;
-
   const el = document.createElement('div');
   el.className = 'event-item' + (urgent ? ' urgent' : '');
   el.innerHTML = `
@@ -899,8 +1099,6 @@ async function fetchCalendar() {
     const end    = new Date(Date.now() + 7*86400000).toISOString();
 
     const calLabels = {
-      'primary': 'Personal',
-      'sarahcmeaney@gmail.com': 'Personal',
       'sarahcmeaney@gmail.com': 'Personal',
       'family08911118207722332863@group.calendar.google.com': 'Family',
       'ginjiu1qiv63pngutneri1f1rk2b6s45@import.calendar.google.com': "St. Colman's",
@@ -915,13 +1113,10 @@ async function fetchCalendar() {
         const data = await res.json();
         if (data.error) {
           console.error('Google Calendar API error:', JSON.stringify(data.error));
-          // Show error in today panel
-          const todayEls = document.getElementById('today-list');
-          todayEls.innerHTML = `<div class="empty-msg" style="color:var(--amber)">Calendar error: ${data.error.message}</div>`;
+          document.getElementById('today-list').innerHTML =
+            `<div class="empty-msg" style="color:var(--amber)">Calendar error: ${data.error.message}</div>`;
         } else if (data.items) {
-          data.items.forEach(e => {
-            e.calName = calLabels[calId] || data.summary || 'Other';
-          });
+          data.items.forEach(e => { e.calName = calLabels[calId] || data.summary || 'Other'; });
           events = events.concat(data.items);
         }
       } catch(err) {
@@ -957,11 +1152,9 @@ async function fetchCalendar() {
   } else {
     upcomingEvts.forEach(e => upcomingEls.appendChild(buildEventEl(e)));
   }
-
-  renderGlance(todayEvts, upcomingEvts);
 }
 
-// ── Reminders (demo — Apple Reminders has no public browser API) ───────────────
+// ── Reminders (demo) ───────────────────────────────────────────────────────────
 const DEMO_REMINDERS = [
   { title: 'Chase CAMHS referral letter', priority: 'high', due: 'Today' },
   { title: 'Review Food Label System brief', priority: 'high', due: 'Today' },
@@ -985,28 +1178,6 @@ function renderReminders() {
   });
 }
 
-// ── At a Glance panel ─────────────────────────────────────────────────────────
-function renderGlance(today, upcoming) {
-  const el = document.getElementById('glance-content');
-  const now = new Date();
-  const hour = now.getHours();
-  const greeting = hour < 12 ? 'Good morning' : hour < 17 ? 'Good afternoon' : 'Good evening';
-
-  const nextEvent = today.find(e => new Date(e.start?.dateTime || e.start?.date) > now) || upcoming[0];
-  const nextStr   = nextEvent
-    ? `Next: <strong>${nextEvent.summary}</strong> at ${fmtEvtTime(nextEvent.start?.dateTime || nextEvent.start?.date)}`
-    : 'No more events today';
-
-  el.innerHTML = `
-    <div style="font-family:'DM Serif Display',serif;font-size:clamp(2.00rem, 4.40vw, 2.80rem);color:var(--text);line-height:1.3">${greeting}, Sarah</div>
-    <div style="font-size: 1.44rem;color:var(--dim);line-height:1.5;">${nextStr}</div>
-    <div style="font-family:'DM Mono',monospace;font-size: 1.30rem;color:var(--muted);margin-top:4px;line-height:1.6;">
-      ${today.length} event${today.length!==1?'s':''} today · ${upcoming.length} upcoming<br>
-      ${DEMO_REMINDERS.filter(r=>r.priority==='high').length} high-priority reminders
-    </div>
-  `;
-}
-
 // ── Status bar ────────────────────────────────────────────────────────────────
 function updateStatus() {
   const t = new Date();
@@ -1025,7 +1196,7 @@ async function refreshAll() {
   updateStatus();
 }
 
-// Keep awake (prevents iPad sleep on page focus)
+// Keep awake
 let noSleep;
 document.addEventListener('touchstart', () => {
   if (!noSleep) {
@@ -1044,10 +1215,9 @@ document.addEventListener('touchstart', () => {
 
 // Start
 refreshAll();
-setInterval(refreshAll, 5 * 60 * 1000); // refresh every 5 min
-setInterval(fetchSolar, 60 * 1000);     // solar every 1 min
+setInterval(refreshAll, 5 * 60 * 1000);
+setInterval(fetchSolar, 60 * 1000);
 
-// Close config on backdrop tap
 document.getElementById('config-overlay').addEventListener('click', function(e) {
   if (e.target === this) closeConfig();
 });

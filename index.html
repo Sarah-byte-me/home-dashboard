@@ -1010,7 +1010,7 @@ async function fetchSolar() {
     if (!d) { renderSolar(DEMO_SOLAR, true); return; }
     const batteryCharging = parseInt(d.batteryDirection || 0) === 1;
     const psumVal = parseFloat(d.psum || 0);
-    const gridExporting = psumVal < 0;
+    const gridExporting = psumVal > 0;
     renderSolar({
       currentPower:    parseFloat(d.power || 0),
       homeLoad:        parseFloat(d.familyLoadPower || 0),

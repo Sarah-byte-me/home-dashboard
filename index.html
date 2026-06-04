@@ -884,7 +884,7 @@ async function fetchWeatherTile(cfg) {
   try {
     // Use 5-day / 3-hour forecast endpoint — free tier
     const res = await fetch(
-      `https://api.openweathermap.org/data/2.5/forecast?q=Newry,GB&units=metric&cnt=16&appid=${cfg.weatherApiKey}`
+      `https://api.openweathermap.org/data/2.5/forecast?q=Newry,GB&units=metric&cnt=32&appid=${cfg.weatherApiKey}`
     );
     const data = await res.json();
     if (data.cod !== '200') throw new Error(data.message);
@@ -903,8 +903,13 @@ async function fetchWeatherTile(cfg) {
       days[key].push(item);
     });
 
+    const day2 = new Date(today); day2.setDate(day2.getDate() + 2);
+    const day3 = new Date(today); day3.setDate(day3.getDate() + 3);
+
     const todayKey    = today.toDateString();
     const tomorrowKey = tomorrow.toDateString();
+    const day2Key     = day2.toDateString();
+    const day3Key     = day3.toDateString();
 
     function summariseDay(items, label) {
       if (!items || !items.length) return null;
@@ -922,9 +927,11 @@ async function fetchWeatherTile(cfg) {
 
     const todaySummary    = summariseDay(days[todayKey],    'Today');
     const tomorrowSummary = summariseDay(days[tomorrowKey], 'Tomorrow');
+    const day2Summary     = summariseDay(days[day2Key],     day2.toLocaleDateString('en-GB', {weekday:'long'}));
+    const day3Summary     = summariseDay(days[day3Key],     day3.toLocaleDateString('en-GB', {weekday:'long'}));
 
     el.innerHTML = '';
-    [todaySummary, tomorrowSummary].forEach(day => {
+    [todaySummary, tomorrowSummary, day2Summary, day3Summary].forEach(day => {
       if (!day) return;
       const row = document.createElement('div');
       row.className = 'weather-day';
@@ -940,7 +947,7 @@ async function fetchWeatherTile(cfg) {
       el.appendChild(row);
     });
 
-    if (!todaySummary && !tomorrowSummary) {
+    if (!todaySummary && !tomorrowSummary && !day2Summary && !day3Summary) {
       el.innerHTML = '<div class="weather-no-key">No forecast data available</div>';
     }
   } catch(e) {

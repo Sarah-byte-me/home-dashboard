@@ -786,6 +786,14 @@
       </div>
     </div>
 
+    <div class="config-section">
+      <div class="config-section-label">✅ Asana</div>
+      <input class="config-input" id="cfg-asana-token" placeholder="Asana Personal Access Token" type="password">
+      <div class="config-hint">
+        Get your token at <a href="https://app.asana.com/0/my-apps" target="_blank">app.asana.com/0/my-apps</a> → Personal access tokens → Create new token.
+      </div>
+    </div>
+
     <div class="btn-row">
       <button class="btn btn-ghost" onclick="closeConfig()">Cancel</button>
       <button class="btn btn-primary" onclick="saveConfig()">Save & Refresh</button>
@@ -814,6 +822,7 @@ function saveConfig() {
     gcalApiKey:    document.getElementById('cfg-gcal-key').value.trim(),
     gcalIds:       document.getElementById('cfg-gcal-ids').value.trim(),
     weatherApiKey: document.getElementById('cfg-weather-key').value.trim(),
+    asanaToken:    document.getElementById('cfg-asana-token').value.trim(),
   };
   localStorage.setItem(CFG_KEY, JSON.stringify(cfg));
   closeConfig();
@@ -828,6 +837,7 @@ function openConfig() {
   document.getElementById('cfg-gcal-key').value     = cfg.gcalApiKey || '';
   document.getElementById('cfg-gcal-ids').value     = cfg.gcalIds || '';
   document.getElementById('cfg-weather-key').value  = cfg.weatherApiKey || '';
+  document.getElementById('cfg-asana-token').value  = cfg.asanaToken || '';
   document.getElementById('config-overlay').classList.remove('hidden');
 }
 
@@ -1161,28 +1171,91 @@ async function fetchCalendar() {
   }
 }
 
-// ── Reminders (demo) ───────────────────────────────────────────────────────────
-const DEMO_REMINDERS = [
-  { title: 'Chase CAMHS referral letter', priority: 'high', due: 'Today' },
-  { title: 'Review Food Label System brief', priority: 'high', due: 'Today' },
-  { title: 'Update Asana – Food Safe System', priority: 'medium', due: 'This week' },
-  { title: 'Check Solis battery schedule', priority: 'low', due: null },
-];
-
-function renderReminders() {
+// ── Asana "Needs Attention" ────────────────────────────────────────────────────
+async function fetchAsanaTasks() {
+  const cfg = loadConfig();
+  const ASANA_TOKEN = cfg.asanaToken;
   const list = document.getElementById('reminder-list');
-  list.innerHTML = '';
-  const pColors = { high: 'var(--red)', medium: 'var(--amber)', low: 'var(--muted)' };
-  DEMO_REMINDERS.forEach(r => {
-    const el = document.createElement('div');
-    el.className = 'reminder-item';
-    el.innerHTML = `
-      <div class="priority-pip" style="background:${pColors[r.priority]}"></div>
-      <div class="reminder-text">${r.title}</div>
-      ${r.due ? `<div class="reminder-due">${r.due}</div>` : ''}
-    `;
-    list.appendChild(el);
-  });
+
+  if (!ASANA_TOKEN) {
+    list.innerHTML = '<div class="empty-msg">Add Asana token in ⚙ settings</div>';
+    return;
+  }
+
+  list.innerHTML = '<div class="empty-msg">Loading tasks…</div>';
+
+  try {
+    // Get the current user's GID
+    const meRes = await fetch('https://app.asana.com/api/1.0/users/me', {
+      headers: { 'Authorization': `Bearer ${ASANA_TOKEN}`, 'Accept': 'application/json' }
+    });
+    const meData = await meRes.json();
+    const userGid = meData.data.gid;
+    const workspaceGid = meData.data.workspaces[0].gid;
+
+    // Fetch incomplete tasks assigned to me, due today or overdue
+    const params = new URLSearchParams({
+      assignee: userGid,
+      workspace: workspaceGid,
+      completed_since: 'now',
+      opt_fields: 'name,due_on,priority,custom_fields,memberships.project.name',
+      limit: 20
+    });
+
+    const tasksRes = await fetch(`https://app.asana.com/api/1.0/tasks?${params}`, {
+      headers: { 'Authorization': `Bearer ${ASANA_TOKEN}`, 'Accept': 'application/json' }
+    });
+    const tasksData = await tasksRes.json();
+    const tasks = tasksData.data || [];
+
+    list.innerHTML = '';
+
+    if (tasks.length === 0) {
+      list.innerHTML = '<div class="empty-msg">No tasks assigned to you 🎉</div>';
+      return;
+    }
+
+    const today = new Date(); today.setHours(0,0,0,0);
+
+    // Sort: overdue first, then by due date, then no date
+    tasks.sort((a, b) => {
+      const da = a.due_on ? new Date(a.due_on) : null;
+      const db = b.due_on ? new Date(b.due_on) : null;
+      if (da && db) return da - db;
+      if (da) return -1;
+      if (db) return 1;
+      return 0;
+    });
+
+    tasks.slice(0, 6).forEach(task => {
+      const dueDate = task.due_on ? new Date(task.due_on + 'T00:00:00') : null;
+      const isOverdue = dueDate && dueDate < today;
+      const isDueToday = dueDate && dueDate.toDateString() === today.toDateString();
+
+      let dueLabel = '';
+      if (isOverdue) dueLabel = 'Overdue';
+      else if (isDueToday) dueLabel = 'Today';
+      else if (dueDate) {
+        const diff = Math.round((dueDate - today) / 86400000);
+        dueLabel = diff === 1 ? 'Tomorrow' : dueDate.toLocaleDateString('en-GB', {day:'numeric',month:'short'});
+      }
+
+      const pipColor = isOverdue ? 'var(--red)' : isDueToday ? 'var(--amber)' : 'var(--muted)';
+
+      const el = document.createElement('div');
+      el.className = 'reminder-item';
+      el.innerHTML = `
+        <div class="priority-pip" style="background:${pipColor}"></div>
+        <div class="reminder-text">${task.name}</div>
+        ${dueLabel ? `<div class="reminder-due">${dueLabel}</div>` : ''}
+      `;
+      list.appendChild(el);
+    });
+
+  } catch(e) {
+    console.error('Asana fetch error:', e);
+    list.innerHTML = '<div class="empty-msg" style="color:var(--amber)">Could not load tasks</div>';
+  }
 }
 
 // ── Status bar ────────────────────────────────────────────────────────────────
@@ -1199,7 +1272,7 @@ async function refreshAll() {
     fetchCalendar(),
     fetchWeather(),
   ]);
-  renderReminders();
+  fetchAsanaTasks();
   updateStatus();
 }
 
